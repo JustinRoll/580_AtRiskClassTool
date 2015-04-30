@@ -6,7 +6,7 @@ import pickle
 
 from dataObjects import *
 
-output = open("data/gitData.p", "wb") 
+output = open("data/gitData.p", "wb")
 
 
 #git checkout commit_hash
@@ -23,6 +23,8 @@ commits = []
 #to do: get the full code at the time of the commit
 #get the code changed
 for commit in repo.get_commits():
+    print "commit"
     commits.append(commit)
 
+print "done"
 pickle.dump(commits, output)
