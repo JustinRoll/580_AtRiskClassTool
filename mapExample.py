@@ -4,11 +4,6 @@ import pickle
 
 gitData = pickle.load(open("data/gitData.p", "rb"))
 jiraData = pickle.load(open("data/jiraData.p", "rb"))
-print(len(jiraData))
 
-#for comm in gitData:
-#    print(comm.commit.message)
-
-for issue in jiraData:
-    print(issue.issueId)
-
+jiraGitMapper = Mapper()
+jiraGitMapper.mapCommitsToTickets(gitData, jiraData, "SONAR-")
