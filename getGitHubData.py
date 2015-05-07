@@ -3,7 +3,7 @@ import urllib
 from encodedPwds import *
 import base64
 import pickle
-
+from copy import deepcopy
 from dataObjects import *
 
 output = open("data/gitData.p", "wb")
@@ -23,8 +23,10 @@ commits = []
 #to do: get the full code at the time of the commit
 #get the code changed
 for commit in repo.get_commits():
-    print "commit"
-    commits.append(commit)
+    commits.append((commit, deepcopy(commit.files)))
+    #requests += 1
+    #if requests > NUM_REQUESTS:
+    #    break
 
-print "done"
+print("done")
 pickle.dump(commits, output)
