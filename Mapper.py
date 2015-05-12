@@ -27,16 +27,16 @@ class Mapper(object):
 
             #find the ticket by the issue ID in the commit
             if commitNumber in ticketHash:
-                ticket = ticketHash[commitNumber];
+                ticket = ticketHash[commitNumber]
             else:
                 continue
 
             # Get the list of commits for that ticket if it exists
             # Create it if it does not
             if ticket in ticketsToCommits:
-                ticketsToCommits[ticket].append({ "commit" : commit })
+                ticketsToCommits[ticket].append(commit)
             else:
-                ticketsToCommits[ticket] = [{ "commit" : commit }]
+                ticketsToCommits[ticket] = [commit]
 
         print("Total Tickets: " + str(len(tickets)))
         print("Orphaned Tickets: " + str(orphanedTickets[0]))
@@ -62,7 +62,7 @@ class Mapper(object):
 
     def parseCommitNumber(self, commit, token):
             # Find the token in the string
-            commitMessage = commit.commit.message
+            commitMessage = commit[0].commit.message
             beginCommitIndex = commitMessage.find(token);
 
             # Parse out the commit #
@@ -76,11 +76,21 @@ class Mapper(object):
             else:
                 return None
 
-    def mapCommitsToClasses(self, commitLists, repo):
+    def mapCommitsToClasses(self, ticketsToCommits):
         commitsToClassesMap = {}
+        ticketsToClassesMap = {}
+        for ticket, commits in ticketsToCommits.items():
+            for commit in commits:
+                for f in commit[2]:
+                    if ".java" in f.filename and "package_info" not in f.filename:
+                        if ticket not in ticketsToClassesMap:
+                            ticketsToClassesMap[ticket] = [f.filename]
+                        else:
+                            ticketsToClassesMap[ticket].append(f.filename)
 
-        for commitList in commitLists:
-            for commit in commitList:
-                if commit["commit"].sha not in commitsToClassesMap:
-                    repo.git.checkout(commit["commit"].sha)
-                    print("checked out")
+                        if commit[0].sha not in commitsToClassesMap:
+                            commitsToClassesMap[commit[0].sha] = [f.filename]
+                        else:
+                            commitsToClassesMap[commit[0].sha].append(f.filename)
+
+        return [ticketsToClassesMap, commitsToClassesMap]
