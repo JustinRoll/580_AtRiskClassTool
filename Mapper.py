@@ -1,3 +1,4 @@
+from git import Repo
 import re
 import sys
 
@@ -33,9 +34,9 @@ class Mapper(object):
             # Get the list of commits for that ticket if it exists
             # Create it if it does not
             if ticket in ticketsToCommits:
-                ticketsToCommits[ticket].append(commit)
+                ticketsToCommits[ticket].append({ "commit" : commit })
             else:
-                ticketsToCommits[ticket] = [commit]
+                ticketsToCommits[ticket] = [{ "commit" : commit }]
 
         print("Total Tickets: " + str(len(tickets)))
         print("Orphaned Tickets: " + str(orphanedTickets[0]))
@@ -75,3 +76,11 @@ class Mapper(object):
             else:
                 return None
 
+    def mapCommitsToClasses(self, commitLists, repo):
+        commitsToClassesMap = {}
+
+        for commitList in commitLists:
+            for commit in commitList:
+                if commit["commit"].sha not in commitsToClassesMap:
+                    repo.git.checkout(commit["commit"].sha)
+                    print("checked out")
