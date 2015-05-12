@@ -2,12 +2,15 @@ from Mapper import Mapper
 from dataObjects import *
 import pickle
 
-gitData = pickle.load(open("data/gitData.p", "rb"))
-jiraData = pickle.load(open("data/jiraData.p", "rb"))
-print(len(jiraData))
+i = 0
+gitData = pickle.load(open("data/gitCache.p", "rb"))
 
-for issue in jiraData:
-    print(issue.issueId)
+for commit in gitData:
+    print(commit[0].stats.additions)
+    for f in commit[2]:
+        print(f.raw_url)
+
+    i += 1
 
 print("total: " + str(i))
 
