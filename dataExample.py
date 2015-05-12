@@ -3,12 +3,11 @@ from dataObjects import *
 import pickle
 
 i = 0
-gitData = pickle.load(open("data/gitData.p", "rb"))
-jiraData = pickle.load(open("data/jiraData.p", "rb"))
-print(len(jiraData))
+gitData = pickle.load(open("data/gitCache.p", "rb"))
 
 for commit in gitData:
-    for f in commit[1]:
+    print(commit[0].stats.additions)
+    for f in commit[2]:
         print(f.raw_url)
 
     i += 1

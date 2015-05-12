@@ -50,7 +50,7 @@ class Classifier:
         testLabels = np.array([ticket[1] for ticket in testTickets])
         ticketLabels = [ticket[1] for ticket in tickets]
 
-        target_names = set([label for labelList in ticketLabels for label in labelList])
+        target_names = list(set([label for labelList in ticketLabels for label in labelList]))
 
         lb = preprocessing.LabelBinarizer()
         Y = lb.fit_transform(trainLabels)
@@ -66,6 +66,7 @@ class Classifier:
 
         for item, labels in zip(testText, predictedLabels):
             print ('%s => %s' % (item, ', '.join(labels)))
+
         classification_report(testLabels, predictedLabels)
         f1Score = f1_score(testLabels, predictedLabels)
         precision = precision_score(testLabels, predictedLabels)
