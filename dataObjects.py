@@ -16,7 +16,7 @@ class JiraIssue:
         self.components = ""
         self.dueDate = ""
         self.linkedIssues = ""
-
+        self.description = ""
 
 #not using gitCommit currently
 class GitCommit():

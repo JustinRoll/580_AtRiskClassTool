@@ -8,9 +8,10 @@ issues = []
 
 count = 0
 with open(FILE_PATH) as csvfile:
-        issue = JiraIssue() 
         reader = csv.DictReader(csvfile)
         for row in reader:
+                
+                issue = JiraIssue() 
                 issue.issueId = row["Key"]
                 issue.summary = row["Summary"]
                 issue.status = row["Status"]
@@ -19,12 +20,13 @@ with open(FILE_PATH) as csvfile:
                 issue.assignee = row["Assignee"]
                 issue.reporter = row["Reporter"]
                 issue.created = row["Created"]
+                issue.description = row["Description"]
                 issue.lastViewed = row["Last Viewed"]
                 issue.updated = row["Updated"]
                 issue.resolved = row["Resolved"]
                 issue.components = row["Component/s"]
                 issue.dueDate = row["Due Date"]
                 issue.linkedIssues = row["Linked Issues"]
-        issues.append(issue)
+                issues.append(issue)
 
 pickle.dump(issues, output)

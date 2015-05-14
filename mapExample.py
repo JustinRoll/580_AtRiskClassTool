@@ -19,6 +19,7 @@ jiraGitMapper = Mapper()
 ticketsToCommits = jiraGitMapper.mapCommitsToTickets(gitData, jiraData, "SONAR-")
 
 for ticket, commits in ticketsToCommits.items():
+    print(ticket.summary)
     print(ticket.issueId + " : ")
     for commit in commits:
         print("\t" + commit[0].sha + " ", end="")
