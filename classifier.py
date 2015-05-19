@@ -163,10 +163,10 @@ class Classifier:
         testTickets = tickets[trainIndex:]
         print(len(tickets))
         print(trainIndex)
-        trainText = np.array([ticket[0].description for ticket in trainTickets])
+        trainText = np.array([ticket[0].summary for ticket in trainTickets])
         trainLabels = np.array([ticket[1] for ticket in trainTickets])
 
-        testText =  np.array([ticket[0].description for ticket in testTickets])
+        testText =  np.array([ticket[0].summary for ticket in testTickets])
         testLabels = np.array([ticket[1] for ticket in testTickets])
         ticketLabels = [ticket[1] for ticket in tickets]
 
@@ -175,8 +175,9 @@ class Classifier:
         print ("Total of %d labels, so %.5f *x accuracy is baseline" % (len(target_names), (1.0 / (len(target_names) * 1.0))))
         lb = preprocessing.LabelBinarizer()
         Y = lb.fit_transform(trainLabels)
+        dv = DictVectorizer()
         classifier = Pipeline([
-        ('hash', HashingVectorizer()),
+        ('hash', DictV),
         ('tfidf', TfidfTransformer()),
         ('clf', OneVsRestClassifier(LinearSVC()))])
 
