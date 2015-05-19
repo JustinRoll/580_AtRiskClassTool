@@ -17,6 +17,7 @@ from sklearn.metrics import mean_squared_error
 import numpy as np
 from sklearn import preprocessing
 from sklearn.pipeline import Pipeline
+from sklearn.feature_extraction import DictVectorizer
 from sklearn.feature_extraction.text import CountVectorizer, HashingVectorizer
 from sklearn.svm import LinearSVC
 from sklearn.feature_extraction.text import TfidfTransformer
@@ -24,6 +25,7 @@ from sklearn.multiclass import OneVsRestClassifier
 from sklearn.base import TransformerMixin
 from sklearn.metrics import classification_report, accuracy_score, precision_score, f1_score, recall_score, hamming_loss 
 from nltk.metrics import *
+import random
 #just a class to convert sparse matrices to dense matrices
 #for use in the sklearn pipeline. Source was obtained here
 #http://stackoverflow.com/questions/28384680/scikit-learns-pipeline-a-sparse-matrix-was-passed-but-dense-data-is-required
@@ -153,7 +155,7 @@ class Classifier:
         
         return mean_squared_error(testLabels, predictedLabels)
 
-    def classifyClasses(self, ticketsToClasses):
+    def randomClassifyClasses(self, ticketsToClasses):
         #conditionally classify something correctly as a class.
         #we need labeled data with the classes changed in that commit
         tickets = [(ticket, classes) for ticket, classes in ticketsToClasses.items()]
@@ -165,8 +167,66 @@ class Classifier:
         print(trainIndex)
         trainText = np.array([ticket[0].summary for ticket in trainTickets])
         trainLabels = np.array([ticket[1] for ticket in trainTickets])
-
         testText =  np.array([ticket[0].summary for ticket in testTickets])
+        testLabels = np.array([ticket[1] for ticket in testTickets])
+        ticketLabels = [ticket[1] for ticket in tickets]
+
+        target_names = list(set([label for labelList in ticketLabels for label in labelList]))
+
+        print ("Total of %d labels, so %.5f *x accuracy is baseline" % (len(target_names), (1.0 / (len(target_names) * 1.0))))
+        lb = preprocessing.LabelBinarizer()
+        Y = lb.fit_transform(trainLabels)
+        #dv = DictVectorizer()
+        classifier = Pipeline([
+        ('hash', HashingVectorizer()),
+        ('tfidf', TfidfTransformer()),
+        ('clf', OneVsRestClassifier(LinearSVC()))])
+
+        classifier.fit(trainText, Y)
+        #predicted = classifier.predict(testText)
+        predictedLabels = []
+
+        numLabels = len(lb.classes_)
+        for i in range(0, len(testTickets)):
+            labelList = [lb.classes_[random.randrange(0, numLabels - 1)] for j in range(0, random.randrange(0, numLabels))]
+            predictedLabels.append(labelList)
+        predictedLabels = np.array(predictedLabels)
+
+        fpredictedLabels = [pred for pred in predictedLabels if len(pred) != 0]
+        ftestLabels = [testLabels[i] for i in range(0, len(testLabels)) if len(predictedLabels[i]) != 0]
+        ftestText = [testText[i] for i in range(0, len(testLabels)) if len(predictedLabels[i]) != 0]
+        
+        print("original: %d filtered %d" % (len(predictedLabels), len(fpredictedLabels)))
+        for i in range(0, len(predictedLabels)):
+                if len(predictedLabels[i]) == 0:
+                    print(i)
+        for item, plabels, alabels in zip(ftestText, fpredictedLabels, ftestLabels):
+            print ('TICKET: \n%s PREDICTED => \n\t\t%s' % (item, ', '.join(plabels)))
+            print ('\n\t\ttACTUAL => \n\t\t%s' % ', '.join(alabels))
+        #classification_report(testLabels, predictedLabels)
+        f1Score = f1_score(ftestLabels, fpredictedLabels)
+        precision = precision_score(ftestLabels, fpredictedLabels)
+        accuracy = accuracy_score(ftestLabels, fpredictedLabels)
+        recall = recall_score(ftestLabels, fpredictedLabels)
+        hamming = hamming_loss(ftestLabels, fpredictedLabels)
+        self.classifier = classifier
+        
+        return (precision, recall, accuracy, f1Score, hamming)
+
+    def classifyClasses(self, ticketsToClasses):
+        #conditionally classify something correctly as a class.
+        #we need labeled data with the classes changed in that commit
+        tickets = [(ticket, classes) for ticket, classes in ticketsToClasses.items()]
+        random.shuffle(tickets)
+        trainIndex = int(len(tickets) * .8)
+        trainTickets = tickets[:trainIndex] 
+        testTickets = tickets[trainIndex:]
+        print(len(tickets))
+        print(trainIndex)
+        trainText = np.array([ticket[0].description for ticket in trainTickets])
+        trainLabels = np.array([ticket[1] for ticket in trainTickets])
+
+        testText =  np.array([ticket[0].description for ticket in testTickets])
         testLabels = np.array([ticket[1] for ticket in testTickets])
         ticketLabels = [ticket[1] for ticket in tickets]
 
@@ -177,7 +237,7 @@ class Classifier:
         Y = lb.fit_transform(trainLabels)
         dv = DictVectorizer()
         classifier = Pipeline([
-        ('hash', DictV),
+        ('dictV', HashingVectorizer()),
         ('tfidf', TfidfTransformer()),
         ('clf', OneVsRestClassifier(LinearSVC()))])
 

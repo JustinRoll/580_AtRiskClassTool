@@ -2,6 +2,13 @@ import csv
 import pickle
 from dataObjects import *
 
+def formatIssues(issues, curIndex):
+    lastCount = curIndex
+    for i in range(curIndex + 1, len(issues)):
+        if issues[i].issueId.strip() != "" or curIndex >= len(issues):
+            break
+        issues[curIndex].description +=  " " + issues[i].description
+
 FILE_PATH = "data/sqjira.csv"
 output = open("data/jiraData.p", "wb")
 issues = []
@@ -28,5 +35,16 @@ with open(FILE_PATH) as csvfile:
                 issue.dueDate = row["Due Date"]
                 issue.linkedIssues = row["Linked Issues"]
                 issues.append(issue)
+issues2 = []
+for i in range(0, len(issues)):
+    if issues[i].issueId.strip() != "":
+            print(issues[i])
+            formatIssues(issues, i)
+            print(issues[i])
 
+print(len(issues))
+issues = [issue for issue in issues if issue.issueId.strip() != "" and len(issue.description.strip()) > 3]
+print(len(issues))
+#for issue in issues:
+#    print(str(issue))
 pickle.dump(issues, output)

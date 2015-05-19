@@ -25,6 +25,7 @@ def makeClassifier():
     commitsToClasses = ticketsAndCommitsToClasses[1]
     classifier = Classifier()
     results = classifier.classifyClasses(ticketsToClasses)
+#    results = classifier.randomClassifyClasses(ticketsToClasses)
     print("Precision: %.3f, Recall: %.3f, Accuracy: %.3f, f1 score: %.3f, hamming loss: %.3f" % (results[0], results[1], results[2], results[3], results[4])) 
 
 makeClassifier()

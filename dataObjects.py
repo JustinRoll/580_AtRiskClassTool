@@ -18,6 +18,10 @@ class JiraIssue:
         self.linkedIssues = ""
         self.description = ""
 
+
+    def __str__(self):
+        return "ISSUE: %s\n DESCRIPTION:%s" % (self.issueId, self.description)
+
 #not using gitCommit currently
 class GitCommit():
 
