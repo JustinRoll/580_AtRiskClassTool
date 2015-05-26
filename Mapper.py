@@ -46,7 +46,18 @@ class Mapper(object):
         return ticketsToCommits
 
 
+    def mapTicketsToLOC(self, ticketsToCommits):
+        ticketsToCommitsAndLOC = dict()
 
+        for ticket, commits in ticketsToCommits.items():
+            codeChanged = 0
+            for commit in commits:
+                for committedFile in commit[0].files:
+                    codeChanged += committedFile.additions
+
+            ticketsToCommitsAndLOC[ticket] = [commits, codeChanged]
+
+        return ticketsToCommitsAndLOC
 
     def hashTickets(self, tickets, orphanedTickets):
 
