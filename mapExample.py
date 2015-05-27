@@ -18,23 +18,33 @@ jiraGitMapper = Mapper()
 # Create a mapping of jira commits to git tickets
 ticketsToCommits = jiraGitMapper.mapCommitsToTickets(gitData, jiraData, "SONAR-")
 
-ticketsToLOC = jiraGitMapper.mapTicketsToLOC(ticketsToCommits);
+ticketsToCommitsAndLOC = jiraGitMapper.mapTicketsToCommitsToLOC(ticketsToCommits)
 
-for ticket, commitsAndLOC in ticketsToLOC.items():
-    commits = commitsAndLOC[0]
-    LOC = commitsAndLOC[1]
-    print(ticket.summary)
+# Tickets -> LOC
+ticketsToLOC = ticketsToCommitsAndLOC[0]
+# Tickets -> Commits -> LOC
+ticketsToCommitsToLOC = ticketsToCommitsAndLOC[1]
+
+for ticket, commitsToLOC in ticketsToCommitsToLOC.items():
     print(ticket.issueId + " : ")
-    for commit in commits:
-        print("\t" + commit[0].sha + " ", end="")
+    for commit, LOC in commitsToLOC.items():
+        print("\t" + commit + " - " + str(LOC), end="")
         print("")
-    print("\tLOC Changed: " + str(LOC))
+    print("\tTotal LOC Changed: " + str(ticketsToLOC[ticket]))
     print("\n")
 
-# Take the git commits and associate them with java class names
 ticketsAndCommitsToClasses = jiraGitMapper.mapCommitsToClasses(ticketsToCommits)
+# Tickets -> Classes
 ticketsToClasses = ticketsAndCommitsToClasses[0]
+# Commits -> Classes
 commitsToClasses = ticketsAndCommitsToClasses[1]
+# Tickets -> Classes -> LOC
+ticketsToClassesToLOC = ticketsAndCommitsToClasses[2]
+
+for ticket, classesToLOC in ticketsToClassesToLOC.items():
+    print(ticket.issueId + " : ")
+    for clazz, count in classesToLOC.items():
+        print("\t" + clazz + " - " + str(count) + " LOC Changed")
 
 #for ticket, clazzez in ticketsToClasses.items():
 #    print(ticket.issueId + " : ")

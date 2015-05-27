@@ -46,18 +46,25 @@ class Mapper(object):
         return ticketsToCommits
 
 
-    def mapTicketsToLOC(self, ticketsToCommits):
-        ticketsToCommitsAndLOC = dict()
+    def mapTicketsToCommitsToLOC(self, ticketsToCommits):
+        ticketsToLOC = dict()
+        ticketsToCommitsToLOC = dict()
 
         for ticket, commits in ticketsToCommits.items():
             codeChanged = 0
+            commitsToLOC = {}
             for commit in commits:
+                codeChangedInCommit = 0
                 for committedFile in commit[0].files:
-                    codeChanged += committedFile.additions
+                    codeChanged += committedFile.changes
+                    codeChangedInCommit += committedFile.changes
 
-            ticketsToCommitsAndLOC[ticket] = [commits, codeChanged]
+                commitsToLOC[commit[0].sha] = codeChangedInCommit
 
-        return ticketsToCommitsAndLOC
+            ticketsToCommitsToLOC[ticket] = commitsToLOC
+            ticketsToLOC[ticket] = codeChanged
+
+        return [ticketsToLOC, ticketsToCommitsToLOC]
 
     def hashTickets(self, tickets, orphanedTickets):
 
@@ -90,18 +97,28 @@ class Mapper(object):
     def mapCommitsToClasses(self, ticketsToCommits):
         commitsToClassesMap = {}
         ticketsToClassesMap = {}
+        ticketsToClassesToLOC = {}
         for ticket, commits in ticketsToCommits.items():
+            classesToLOC = {}
             for commit in commits:
                 for f in commit[2]:
                     if ".java" in f.filename and "package_info" not in f.filename:
+                        filename = f.filename.replace(".java", "")
                         if ticket not in ticketsToClassesMap:
-                            ticketsToClassesMap[ticket] = [f.filename]
+                            ticketsToClassesMap[ticket] = [filename]
                         else:
                             ticketsToClassesMap[ticket].append(f.filename)
+
+                        if filename not in classesToLOC:
+                            classesToLOC[filename] = f.changes
+                        else:
+                            classesToLOC[filename] += f.changes
 
                         if commit[0].sha not in commitsToClassesMap:
                             commitsToClassesMap[commit[0].sha] = [f.filename]
                         else:
                             commitsToClassesMap[commit[0].sha].append(f.filename)
 
-        return [ticketsToClassesMap, commitsToClassesMap]
+            ticketsToClassesToLOC[ticket] = classesToLOC
+
+        return [ticketsToClassesMap, commitsToClassesMap, ticketsToClassesToLOC]
